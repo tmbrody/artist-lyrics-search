@@ -1,0 +1,39 @@
+{
+  "name": "singer-lyrics-search",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "start-react": "webpack-dev-server --mode development --open",
+    "start-electron": "electron electron/main.js",
+    "start": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^26.1.0",
+    "electron-fetch": "^1.9.1",
+    "path-browserify": "^1.0.1",
+    "react-scripts": "^5.0.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

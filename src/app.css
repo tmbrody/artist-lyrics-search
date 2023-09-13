@@ -1,0 +1,47 @@
+.App {
+    justify-content: center;
+    align-items: center;
+}
+
+.song-container {
+    width: 300px;
+    border: 1px solid #ccc;
+    margin: 10px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.collapsed {
+    max-height: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease-out, visibility 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.expanded {
+    max-height: 1000px;
+    transition: max-height 0.5s ease-out, visibility 0.5s ease-out, opacity 0.5s ease-out;
+    visibility: visible;
+    opacity: 1;
+}
+
+.song-title {
+    text-align: center;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 0.5;
+    cursor: pointer;
+    outline: none;
+}
+
+.lyrics p {
+    margin: 0;
+    padding: 0;
+}
