@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld(
     "api", {
         send: (channel, data) => {
-            let validChannels = ["fetch-lyrics"];
+            let validChannels = ["fetch-lyrics", "textarea-value-changed"];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
             }

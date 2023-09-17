@@ -1,14 +1,13 @@
+.all-songs-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
 .App {
     justify-content: center;
     align-items: center;
-}
-
-.song-container {
-    width: 300px;
-    border: 1px solid #ccc;
-    margin: 10px;
-    padding: 10px;
-    overflow: hidden;
 }
 
 .collapsed {
@@ -19,17 +18,89 @@
 }
 
 .expanded {
-    max-height: 1000px;
-    transition: max-height 0.5s ease-out, visibility 0.5s ease-out, opacity 0.5s ease-out;
+    max-height: 3000px;
     visibility: visible;
     opacity: 1;
+    transition: max-height 0.5s ease-out, visibility 0.5s ease-out, opacity 0.5s ease-out;
 }
 
-.song-title {
+h1, h3 {
+    color: #00ff00;
+    text-align: center;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea, 0 0 30px #00ffea;
+}
+
+.neon-text {
+    color: #00ff00;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea, 0 0 30px #00ffea;
+}
+
+#search-textbox {
+    text-align: center;
+}
+
+#search-textbox textarea {
+    resize: none;
+    background-color: black;
+    text-align: center;
+
+    border: 1px solid #0000ff;
+    box-shadow: 0 0 10px #0000ff, 0 0 20px #0000ff, 0 0 30px #0000ff;
+    margin: 5px;
+    max-height: 5vh;
+
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea, 0 0 30px #00ffea;
+}
+
+.song-container {
+    height: 100%;
+    opacity: 0;
+    overflow: hidden;
+    background-color: black;
+    animation: song-container-grow 0.2s ease-out forwards;
+}
+
+.song-title-click {
     text-align: center;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+}
+
+.space-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: -1;
+}
+
+.space-center {
+    position: absolute;
+    left: 40%;
+    width: 20%;
+    height: 100%;
+    background-color: black;
+    z-index: 999;
+}
+
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.star-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .toggle-button {
@@ -41,7 +112,29 @@
     outline: none;
 }
 
-.lyrics p {
-    margin: 0;
-    padding: 0;
+@keyframes song-container-grow {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+    100% {
+        width: 23%;
+        opacity: 1;
+        border: 1px solid #0000ff;
+        box-shadow: 0 0 10px #0000ff, 0 0 20px #0000ff, 0 0 30px #0000ff;
+        margin: 10px;
+        padding: 10px;
+    }
+}
+
+@keyframes star-animation {
+    0% {
+        transform: translate(0, 0);
+        width: 5px;
+        height: 5px;
+    }
+    100% {
+        width: 50px;
+        height: 50px;
+    }
 }

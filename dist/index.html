@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="utf-8">
+        <title>Singer Lyrics Search</title>
+    </head>
+    <body>
+        <h1>Singer Lyrics Search</h1>
+        <div id="search-textbox">
+            <textarea placeholder="Enter singer name here"></textarea>
+        </div>
+        <div id="root"></div>
+        <div id="auth-button"></div>
+    </body>
+    <script src="bundle.js"></script>
+
+    <script>
+        const starContainer = document.querySelector('.star-container');
+    
+        const numStars = 50;
+    
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            starContainer.appendChild(star);
+        }
+    </script>
+
+    <script>
+        function animateStars() {
+            function getRandomValue(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function getRandomTransformValues() {
+                let randomX = Math.floor(getRandomValue(-4, 4)) * 50;
+                let randomY = Math.floor(getRandomValue(-4, 4)) * 50;
+
+                do {
+                    randomX = Math.floor(getRandomValue(-4, 4)) * 50;
+                    randomY = Math.floor(getRandomValue(-4, 4)) * 50;
+                } while (randomX === 0 || randomY === 0)
+
+                return [randomX, randomY];
+            }
+        
+            const starElements = document.querySelectorAll('.star');
+            
+            starElements.forEach((star) => {
+                const randomLeft = getRandomValue(40, 60);
+                const randomTop = getRandomValue(40, 60);
+
+                const randomAnimationEnd = getRandomTransformValues();
+
+                const randomAnimationEndX = randomAnimationEnd[0]; 
+                const randomAnimationEndY = randomAnimationEnd[1];
+
+                const randomDuration = getRandomValue(0.3, 0.5);
+
+                star.style.left = `${randomLeft}%`;
+                star.style.top = `${randomTop}%`;
+
+                star.style.animation = `star-animation ${randomDuration}s linear infinite`;
+
+                star.style.transform = `translate(${randomAnimationEndX}vh, ${randomAnimationEndY}vh)`;
+            });
+        }
+
+        setInterval(animateStars, 1000);
+
+        animateStars();
+    </script>
+</html>

@@ -3,8 +3,8 @@ import './app.css';
 
 const LyricsDisplay = () => {
 
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const [lyricsData, setLyricsData] = useState({ title: '', lyrics: '' });
+    const [isCollapsedArray, setIsCollapsedArray] = useState(true);
+    const [lyricsDataArray, setLyricsDataArray] = useState([]);
 
     useEffect(() => {
         if (window.api) {
@@ -12,7 +12,9 @@ const LyricsDisplay = () => {
             window.api.send('fetch-lyrics');
 
             window.api.receive('lyrics-fetched', (data) => {
-                setLyricsData(data);
+                setLyricsDataArray(data);
+
+                setIsCollapsedArray(new Array(data.length).fill(true));
             });
 
             return () => {
@@ -21,29 +23,41 @@ const LyricsDisplay = () => {
         }
     }, []);
 
-    const toggleLyrics = () => {
-        setIsCollapsed(!isCollapsed);
+    const toggleLyrics = (index) => {
+        setIsCollapsedArray((prevIsCollapsedArray) => {
+            const newIsCollapsedArray = [...prevIsCollapsedArray];
+            newIsCollapsedArray[index] = !newIsCollapsedArray[index];
+            return newIsCollapsedArray;
+        });
     };
 
     return ( 
-        <div className={'song-container'}>
-            <div className='song-title' onClick={toggleLyrics}>
-                <h3>{lyricsData.title}</h3>
-            </div>
-            <div className={`lyrics ${isCollapsed ? 'collapsed' : 'expanded'}`}>
-                {lyricsData.lyrics.split('\n').map((line, index) => (
-                    <React.Fragment key={index}>
-                        {line}
-                        <br />
-                    </React.Fragment>
-                ))}
-            </div>
-            <div className='song-title' onClick={toggleLyrics}>
-                <button className='toggle-button'>
-                    {isCollapsed ? String.fromCharCode(9660) : String.fromCharCode(9650)}
-                </button>
-            </div>
-        </div>
+        <div className='all-songs-container'>
+            {lyricsDataArray.map((lyricsData, index) => (
+                <div 
+                    key={index} 
+                    className={'song-container'} 
+                    style={{ animationDelay: `${index * 200}ms` }}
+                >
+                    <div className='song-title-click' onClick={() => toggleLyrics(index)}>
+                        <h3>{lyricsData.title}</h3>
+                    </div>
+                    <div className={`neon-text lyrics ${isCollapsedArray[index] ? 'collapsed' : 'expanded'}`}>
+                        {lyricsData.lyrics.split('\n').map((line, index) => (
+                            <React.Fragment key={index}>
+                                {line}
+                                <br />
+                            </React.Fragment>
+                        ))};
+                    </div>
+                    <div className='song-title-click' onClick={() => toggleLyrics(index)}>
+                        <button className='neon-text toggle-button'>
+                            {isCollapsedArray[index] ? String.fromCharCode(9660) : String.fromCharCode(9650)}
+                        </button>
+                    </div>
+                </div>
+            ))};
+        </div> 
     );
 };
 
