@@ -31,24 +31,68 @@ h1, h3 {
     text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea, 0 0 30px #00ffea;
 }
 
+.load-icon {
+    opacity: 0;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    width: 60px;
+    height: 60px;
+}
+
+.load-icon-sphere {
+    position: absolute;
+    width: 0.5vh;
+    height: 0.5vh;
+    background-color: var(--circle-color, red);
+    top: 3.5px;
+    left: 50px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+}
+
+.load-icon-tail {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--circle-color, red);
+    animation: loading-spin 1s linear infinite, change-load-color 7s linear infinite;
+}
+
 .neon-text {
     color: #00ff00;
     letter-spacing: 3px;
     text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea, 0 0 30px #00ffea;
 }
 
-#search-textbox {
-    text-align: center;
+.root-top {
+    margin-top: 50vh;
 }
 
-#search-textbox textarea {
+.search-textbox {
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    justify-content: center;
+}
+
+.search-textbox button {
+    background-color: transparent;
+    cursor: pointer;
+
+    border: 1px solid #0000ff;
+    box-shadow: 0 0 10px #0000ff, 0 0 20px #0000ff, 0 0 30px #0000ff;
+}
+
+.search-textbox textarea {
     resize: none;
     background-color: black;
     text-align: center;
 
     border: 1px solid #0000ff;
     box-shadow: 0 0 10px #0000ff, 0 0 20px #0000ff, 0 0 30px #0000ff;
-    margin: 5px;
     max-height: 5vh;
 
     color: #00ff00;
@@ -92,10 +136,12 @@ h1, h3 {
 .star {
     position: absolute;
     background-color: white;
+    box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00, 0 0 30px #ffff00;
     border-radius: 50%;
 }
 
 .star-container {
+    opacity: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -110,6 +156,111 @@ h1, h3 {
     line-height: 0.5;
     cursor: pointer;
     outline: none;
+}
+
+@keyframes change-load-color {
+    0% {
+        --circle-color: red;
+    }
+    4.2% {
+        --circle-color: rgb(255, 41, 0);
+    }
+    8.4% {
+        --circle-color: rgb(255, 82, 0);
+    }
+    12.6% {
+        --circle-color: rgb(255, 123, 0);
+    }
+    16.8% {
+        --circle-color: orange;
+    }
+    21% {
+        --circle-color: rgb(255, 187, 0);
+    }
+    25.2% {
+        --circle-color: rgb(255, 209, 0);
+    }
+    29.4% {
+        --circle-color: rgb(255, 231, 0);
+    }
+    33.6% {
+        --circle-color: yellow;
+    }
+    37.8% {
+        --circle-color: rgb(192, 224, 0);
+    }
+    42% {
+        --circle-color: rgb(128, 192, 0);
+    }
+    46.2% {
+        --circle-color: rgb(64, 160, 0);
+    }
+    50.4% {
+        --circle-color: green;
+    }
+    54.6% {
+        --circle-color: rgb(0, 96, 64);
+    }
+    58.8% {
+        --circle-color: rgb(0, 64, 128);
+    }
+    63% {
+        --circle-color: rgb(0, 32, 192);
+    }
+    67.2% {
+        --circle-color: blue;
+    }
+    71.4% {
+        --circle-color: rgb(19, 0, 224);
+    }
+    75.6% {
+        --circle-color: rgb(38, 0, 193);
+    }
+    79.8% {
+        --circle-color: rgb(57, 0, 162);
+    }
+    84% {
+        --circle-color: indigo;
+    }
+    88.2% {
+        --circle-color: rgb(120, 0, 98);
+    }
+    92.4% {
+        --circle-color: rgb(165, 0, 66);
+    }
+    96.6% {
+        --circle-color: rgb(210, 0, 34);
+    }
+    100% {
+        --circle-color: red;
+    }
+}
+
+@keyframes loading-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes root-move-to-bottom {
+    0% {
+        margin-top: 0;
+    }
+    100% {
+        margin-top: 50vh;
+    }
+}
+
+@keyframes root-move-to-top {
+    0% {
+        margin-top: 50vh;
+    }
+    100% {
+        margin-top: 0;
+    }
 }
 
 @keyframes song-container-grow {
@@ -136,5 +287,23 @@ h1, h3 {
     100% {
         width: 50px;
         height: 50px;
+    }
+}
+
+@keyframes star-fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes star-fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
     }
 }

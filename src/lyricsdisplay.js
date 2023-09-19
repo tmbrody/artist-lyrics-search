@@ -48,7 +48,7 @@ const LyricsDisplay = () => {
                                 {line}
                                 <br />
                             </React.Fragment>
-                        ))};
+                        ))}
                     </div>
                     <div className='song-title-click' onClick={() => toggleLyrics(index)}>
                         <button className='neon-text toggle-button'>
@@ -56,7 +56,7 @@ const LyricsDisplay = () => {
                         </button>
                     </div>
                 </div>
-            ))};
+            ))}
         </div> 
     );
 };

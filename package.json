@@ -2,17 +2,15 @@
   "name": "singer-lyrics-search",
   "version": "1.0.0",
   "description": "",
-  "homepage": "./",
   "main": "electron/main.js",
   "scripts": {
     "build": "webpack --mode production",
-    "start-react": "webpack-dev-server --mode development --open",
-    "start-electron": "electron electron/main.js",
-    "start": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "start": "electron electron/main.js",
+    "package": "electron-packager . singer-lyrics-search --platform=win32 --arch=x64 --out=dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "tmbrody",
   "license": "ISC",
   "browserslist": {
     "production": [
@@ -27,20 +25,22 @@
     ]
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
-    "electron": "^26.2.1",
-    "electron-fetch": "^1.9.1",
-    "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
     "spotify-web-api-node": "^5.0.2",
-    "webpack-cli": "^5.1.4"
+    "electron-fetch": "^1.9.1"
   },
   "devDependencies": {
+    "electron-packager": "^17.1.2",
+    "style-loader": "^3.3.3",
+    "webpack-cli": "^5.1.4",
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-react": "^7.22.15",
     "babel-loader": "^9.1.3",
-    "concurrently": "^8.2.1"
+    "css-loader": "^6.8.1",
+    "dotenv": "^16.3.1",
+    "electron": "^26.2.1",
+    "jsdom": "^22.1.0",
+    "path-browserify": "^1.0.1"
   }
 }

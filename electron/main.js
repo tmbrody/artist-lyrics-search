@@ -6,47 +6,40 @@ const spotifyApi = require('./spotify');
 require('dotenv').config();
 
 let lyricsApiUrls = [];
-
-let startSearch = false;
-
-let artist = 'Taylor Swift';
-let formerArtist = '';
+let startSearching = true;
+let artist = '';
 
 const lyricsUserId = process.env.LYRICSAPIUSERID;
 const lyricsToken = process.env.LYRICSAPITOKEN;
 
-function spotifySearch() {    
-    spotifyApi.clientCredentialsGrant()
-        .then(data => {
-            spotifyApi.setAccessToken(data.body.access_token);
-    
-            spotifyApi.searchTracks(`artist:"${artist}"`, { limit: 50 })
-                .then(data => {
-                    const tracks = data.body.tracks.items;
-                    tracks.forEach(track => {
-                        let cleanedTrack = track.name.replace(/ /g, "%20");
-                        let cleanedArtist = artist.replace(/ /g, "%20");
-    
-                        let apiUrlStart = 'https://www.stands4.com/services/v2/lyrics.php';
-                        let apiUrlUser = `?uid=${lyricsUserId}`;
-                        let apiUrlToken = `&tokenid=${lyricsToken}`;
-                        let apiUrlTerm = `&term=${cleanedTrack}`;
-                        let apiUrlArtist = `&artist=${cleanedArtist}`;
-                        let apiUrlFormat = '&format=json';
-                        let ApiUrlFull = [apiUrlStart, apiUrlUser, apiUrlToken, 
-                                            apiUrlTerm, apiUrlArtist, apiUrlFormat];
-                        let lyricsApiUrl = ApiUrlFull.join('');
-                        lyricsApiUrls.push(lyricsApiUrl);
-                    startSearch = true;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error searching for songs:', error);
-                });
-        })
-        .catch(error => {
-            console.error('Error obtaining access token:', error);
-        });
+async function spotifySearch() {    
+    try {
+        const data = await spotifyApi.clientCredentialsGrant();
+        spotifyApi.setAccessToken(data.body.access_token);
+
+        const searchData = await spotifyApi.searchTracks(`artist:"${artist}"`);
+        const tracks = searchData.body.tracks.items;
+
+        if (tracks.length > 0) {
+            tracks.forEach(async (track) => {
+                let cleanedTrack = track.name.replace(/ /g, "%20");
+                let cleanedArtist = artist.replace(/ /g, "%20");
+
+                let apiUrlStart = 'https://www.stands4.com/services/v2/lyrics.php';
+                let apiUrlUser = `?uid=${lyricsUserId}`;
+                let apiUrlToken = `&tokenid=${lyricsToken}`;
+                let apiUrlTerm = `&term=${cleanedTrack}`;
+                let apiUrlArtist = `&artist=${cleanedArtist}`;
+                let apiUrlFormat = '&format=json';
+                let ApiUrlFull = [apiUrlStart, apiUrlUser, apiUrlToken, 
+                                    apiUrlTerm, apiUrlArtist, apiUrlFormat];
+                let lyricsApiUrl = ApiUrlFull.join('');
+                lyricsApiUrls.push(lyricsApiUrl);
+            });
+        }
+    } catch (error) {
+        console.error('Error obtaining access token:', error);
+    }
 }
 
 let mainWindow;
@@ -62,7 +55,7 @@ const createWindow = () => {
         }
     });
 
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -80,26 +73,22 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.on('textarea-value-changed', (event, newValue) => {
-    if (newValue === artist && newValue !== formerArtist && !startSearch) {
-        formerArtist = artist;
-        spotifySearch();
-    }
-});
-
-ipcMain.on('create-auth-button', () => {
-    mainWindow.webContents.send('create-auth-button');
+    startSearching = true;
+    artist = newValue;
+    spotifySearch();
 });
 
 ipcMain.on('fetch-lyrics', async (event) => {
     async function startFetchingLyrics() {
-        if (startSearch) {
-            startSearch = false;
+        if (lyricsApiUrls.length > 0 && startSearching) {
+            startSearching = false;
             const replyData = await fetchLyrics();
+            lyricsApiUrls = [];
             event.reply('lyrics-fetched', replyData);
         }
     }
 
-    setInterval(startFetchingLyrics, 500);
+    setInterval(startFetchingLyrics, 2000);
 });
 
 async function fetchLyrics() {
@@ -131,11 +120,9 @@ async function fetchLyrics() {
     
                     return data;
                 } else {
-                    console.log('Lyrics not found on the page.');
                     return null;
                 }
             } else {
-                console.log('No results found.');
                 return null;
             }
         });
