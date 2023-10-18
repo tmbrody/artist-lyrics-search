@@ -5,5 +5,3 @@ This is an Electron/React app that locates some song titles and lyrics for any a
 ### Lyrics API has several limitations and issues, so it's unable to find lyrics for many different songs.
 
 That's why I decided to treat this as a test app to show basic functionality, and at some point in the future, I'll make a second version of this app that will use a different API to allow for full, extensive searches that will actually find all of the song titles and lyrics for any given artist.
-
-### Make sure to add your Spotify and Lyrics API credentials to the spotify.js and .env files before running the program.
