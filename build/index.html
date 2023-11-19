@@ -6,16 +6,19 @@
         <title>Singer Lyrics Search</title>
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
     </head>
+
     <body>
         <div id="root"></div>
     </body>
+
     <script src="bundle.js"></script>
 
     <script>
         const starContainer = document.querySelector('.star-container');
-    
+
         const numStars = 50;
-    
+
+        // Create and append star elements to the container
         for (let i = 0; i < numStars; i++) {
             const star = document.createElement('div');
             star.className = 'star';
@@ -25,14 +28,17 @@
 
     <script>
         function animateStars() {
+            // Helper function to get a random value within a range
             function getRandomValue(min, max) {
                 return Math.random() * (max - min) + min;
             }
 
+            // Helper function to get random X and Y transform values for stars
             function getRandomTransformValues() {
                 let randomX = Math.floor(getRandomValue(-4, 4)) * 50;
                 let randomY = Math.floor(getRandomValue(-4, 4)) * 50;
 
+                // Ensure that randomX and randomY are not both zero
                 do {
                     randomX = Math.floor(getRandomValue(-4, 4)) * 50;
                     randomY = Math.floor(getRandomValue(-4, 4)) * 50;
@@ -40,31 +46,32 @@
 
                 return [randomX, randomY];
             }
-        
+
             const starElements = document.querySelectorAll('.star');
-            
+
+            // Iterate through each star element
             starElements.forEach((star) => {
                 const randomLeft = getRandomValue(40, 60);
                 const randomTop = getRandomValue(40, 60);
 
                 const randomAnimationEnd = getRandomTransformValues();
-
-                const randomAnimationEndX = randomAnimationEnd[0]; 
+                const randomAnimationEndX = randomAnimationEnd[0];
                 const randomAnimationEndY = randomAnimationEnd[1];
 
                 const randomDuration = getRandomValue(0.3, 0.5);
 
+                // Set star element's initial position and animation properties
                 star.style.left = `${randomLeft}%`;
                 star.style.top = `${randomTop}%`;
-
                 star.style.animation = `star-animation ${randomDuration}s linear infinite`;
-
                 star.style.transform = `translate(${randomAnimationEndX}vh, ${randomAnimationEndY}vh)`;
             });
         }
 
+        // Trigger the animation immediately and set it to repeat every 1000ms
         setInterval(animateStars, 1000);
 
+        // Trigger the animation immediately on page load
         animateStars();
     </script>
 </html>

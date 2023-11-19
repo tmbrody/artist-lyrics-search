@@ -1,23 +1,23 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const fetch = require('electron-fetch').default;
-const { JSDOM } = require('jsdom');
 const path = require('path');
 const SpotifyWebApi = require('spotify-web-api-node');
 const fs = require('fs');
 require('dotenv').config();
 
-let lyricsApiUrls = [];
+let musixmatchApiUrls = [];
 let startSearching = true;
 let artist = '';
 
-let lyricsUserId = process.env.LYRICSAPIUSERID;
-let lyricsToken = process.env.LYRICSAPITOKEN;
+let musixmatchApiKey = process.env.MUSIXMATCHAPIKEY;
 let spotifyClientId = process.env.SPOTIFYWEBAPIID;
 let spotifyClientSecret = process.env.SPOTIFYWEBAPISECRET;
 
 let restoreCredentialsWindow = false;
 
 let credentialsWindow;
+
+// Function to create a window for entering credentials
 async function createCredentialsWindow() {
     credentialsWindow = new BrowserWindow({
         width: 800,
@@ -34,18 +34,19 @@ async function createCredentialsWindow() {
 
     ipcMain.on('credentials-submitted', (event, userData) => {
         if (restoreCredentialsWindow) {
+            // Write credentials to .env file
             fs.writeFileSync('.env', 
-                `LYRICSAPIUSERID="${userData[0]}"\nLYRICSAPITOKEN="${userData[1]}"\n` + 
-                `SPOTIFYWEBAPIID="${userData[2]}"\nSPOTIFYWEBAPISECRET="${userData[3]}"`
+                `MUSIXMATCHAPIKEY="${userData[0]}"\n` + 
+                `SPOTIFYWEBAPIID="${userData[1]}"\nSPOTIFYWEBAPISECRET="${userData[2]}"`
             );
-            console.log('.env file created with your credentials.');
 
-            lyricsUserId = userData[0];
-            lyricsToken = userData[1];
-            spotifyClientId = userData[2];
-            spotifyClientSecret = userData[3];
+            // Update variables with new credentials
+            musixmatchApiKey = userData[0];
+            spotifyClientId = userData[1];
+            spotifyClientSecret = userData[2];
             restoreCredentialsWindow = false;
 
+            // Close the credentials window and create the main window
             credentialsWindow.close();
             createMainWindow();
         }
@@ -56,12 +57,11 @@ async function createCredentialsWindow() {
     });
 }
 
-app.on('ready', () =>{
+app.on('ready', () => {
     if (!fs.existsSync('.env')) {
         restoreCredentialsWindow = true;
         createCredentialsWindow();
     } else {
-        console.log('.env file already exists.');
         createMainWindow();
     }
 });
@@ -73,42 +73,39 @@ async function spotifySearch() {
     });
 
     try {
+        // Request a client credentials grant
         const data = await spotifyApi.clientCredentialsGrant();
         spotifyApi.setAccessToken(data.body.access_token);
 
-        const searchData = await spotifyApi.searchTracks(`artist:"${artist}"`, { limit: 15 });
+        // Search for tracks by the specified artist
+        const searchData = await spotifyApi.searchTracks(`artist:"${artist}"`, { limit: 50 });
         const tracks = searchData.body.tracks.items;
 
+        // If tracks were found, create an array of Musixmatch API URLs
         if (tracks.length > 0) {
             searchedTracks = [];
             is_new_track = false;
 
             tracks.forEach(async (track) => {
-                let cleanedArtist = artist.replace(/ /g, "%20");
-                let cleanedTrack = track.name.replace(/ /g, "%20");
-
-                if (searchedTracks.length === 0 || !searchedTracks.includes(cleanedTrack)) {
-                    searchedTracks.push(cleanedTrack);
+                if (searchedTracks.length === 0 || !searchedTracks.includes(track.name)) {
+                    searchedTracks.push(track.name);
                     is_new_track = true;
                 }
 
+                // If the track is new, create a Musixmatch API URL
                 if (is_new_track) {
-                    let apiUrlStart = 'https://www.stands4.com/services/v2/lyrics.php';
-                    let apiUrlUser = `?uid=${lyricsUserId}`;
-                    let apiUrlToken = `&tokenid=${lyricsToken}`;
-                    let apiUrlTerm = `&term=${cleanedTrack}`;
-                    let apiUrlArtist = `&artist=${cleanedArtist}`;
-                    let apiUrlFormat = '&format=json';
-                    let ApiUrlFull = [apiUrlStart, apiUrlUser, apiUrlToken, 
-                                        apiUrlTerm, apiUrlArtist, apiUrlFormat];
-                    let lyricsApiUrl = ApiUrlFull.join('');
-                    lyricsApiUrls.push(lyricsApiUrl);
+                    const apiUrl = `https://api.musixmatch.com/ws/1.1/track.search?q=${encodeURIComponent(
+                        track.name
+                    )}&q_artist=${encodeURIComponent(artist)}&apikey=${musixmatchApiKey}`;
+
+                    musixmatchApiUrls.push(apiUrl);
                 }
 
                 is_new_track = false;
             });
         }
     } catch (error) {
+        // Handle errors by restoring credentials window
         restoreCredentialsWindow = true;
         mainWindow.close();
         createCredentialsWindow();
@@ -117,10 +114,11 @@ async function spotifySearch() {
 
 let mainWindow;
 
+// Function to create the main application window
 const createMainWindow = () => {
     mainWindow = new BrowserWindow({
-        width:800,
-        height:600,
+        width: 800,
+        height: 600,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
@@ -136,59 +134,67 @@ const createMainWindow = () => {
     });
 };
 
+// Handle window close event for all windows
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
+// Listen for changes in the artist input field
 ipcMain.on('textarea-value-changed', (event, newValue) => {
     startSearching = true;
     artist = newValue;
     spotifySearch();
 });
 
+// Listen for a request to fetch lyrics
 ipcMain.on('fetch-lyrics', async (event) => {
     async function startFetchingLyrics() {
-        if (lyricsApiUrls.length > 0 && startSearching) {
+        if (musixmatchApiUrls.length > 0 && startSearching) {
             startSearching = false;
             const replyData = await fetchLyrics();
-            lyricsApiUrls = [];
+            musixmatchApiUrls = [];
             event.reply('lyrics-fetched', replyData);
         }
     }
 
+    // Periodically fetch lyrics
     setInterval(startFetchingLyrics, 2000);
 });
 
+// Function to fetch lyrics from Musixmatch
 async function fetchLyrics() {
     try {
-        const lyricsPromises = lyricsApiUrls.map(async (apiUrl) => {
+        const lyricsPromises = musixmatchApiUrls.map(async (apiUrl) => {
             const response = await fetch(apiUrl);
             const data = await response.json();
+
+            if (
+                data.message &&
+                data.message.body &&
+                data.message.body.track_list &&
+                data.message.body.track_list.length > 0
+            ) {
+                const trackId = data.message.body.track_list[0].track.track_id;
+
+                const lyricsUrl = `https://api.musixmatch.com/ws/1.1/track.lyrics.get?track_id=${trackId}&apikey=${musixmatchApiKey}`;
     
-            if (data["result"]) {
-                let songLink = data["result"]["song-link"];
-                if (data["result"].length > 0) {
-                    songLink = data["result"][0]["song-link"];
-                } else {
-                    songLink = data["result"]["song-link"];
-                }
+                const lyricsResponse = await fetch(lyricsUrl);
+                const lyricsData = await lyricsResponse.json();
+
+                if (
+                    lyricsData.message &&
+                    lyricsData.message.body &&
+                    lyricsData.message.body.lyrics
+                ) {
+                    const title = data.message.body.track_list[0].track.track_name;
+                    const lyrics = lyricsData.message.body.lyrics.lyrics_body;
     
-                const response2 = await fetch(songLink);
-                const lyricsInfo = await response2.text();
-    
-                const dom = new JSDOM(lyricsInfo);
-                const lyricsText = dom.window.document.getElementById('lyric-body-text').textContent.trim();
-                const titleText = dom.window.document.getElementById('lyric-title-text').textContent.trim();
-    
-                if (lyricsText && titleText) {
-                    const data = {
-                        title: titleText,
-                        lyrics: lyricsText
+                    return {
+                        title: title,
+                        lyrics: lyrics
                     };
-    
-                    return data;
                 } else {
                     return null;
                 }
@@ -197,10 +203,10 @@ async function fetchLyrics() {
             }
         });
 
+        // Wait for all lyrics promises to resolve and filter out null results
         const lyricsDataArray = await Promise.all(lyricsPromises);
         return lyricsDataArray.filter(data => data !== null);
     } catch (error) {
-        console.error('Error:', error);
         throw error;
     }
 };
